@@ -1,6 +1,5 @@
 # Relatório de Cobertura de Testes — ArtCraft
 
-**Aluno:** Italo Dell Areti  
 **Repositório analisado:** [github.com/storytold/artcraft](https://github.com/storytold/artcraft) (≈25,9 mil estrelas, ≈4,1 mil forks)  
 **Commit analisado:** `d4e4ac6` (11/10/2026)  
 **Linguagem:** Rust (workspace Cargo)  

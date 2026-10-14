@@ -1,6 +1,5 @@
 # Relatório de Cobertura de Testes — REA (Reverse Engineer Anything)
 
-**Aluno:** Italo Dell Areti  
 **Repositório analisado:** [github.com/morluto/rea](https://github.com/morluto/rea) (≈211 mil estrelas, ≈51,8 mil forks)  
 **Commit analisado:** `41a2e84` (14/10/2026)  
 **Linguagem:** TypeScript (Node.js)  
@@ -23,7 +22,7 @@ npm run test:coverage -- --coverage.reportOnFailure=true \
   --coverage.reporter=text-summary --coverage.reportsDirectory=out/rea/coverage
 ```
 
-`test:coverage` é o script oficial do projeto (`vitest run --coverage.enabled --coverage.provider=v8`). O script `scripts/rea-coverage.sh`, neste repositório, reproduz a execução completa. Foi preciso adicionar `--coverage.reportOnFailure=true`, porque por padrão o Vitest **não gera o relatório** quando algum teste falha. Isso aconteceu na primeira execução.
+`test:coverage` é o script oficial do projeto (`vitest run --coverage.enabled --coverage.provider=v8`). O script `scripts/rea-coverage.sh`, neste repositório, reproduz a execução completa. Foi preciso adicionar `--coverage.reportOnFailure=true`, porque por padrão o Vitest não gera o relatório quando algum teste falha. Isso aconteceu na primeira execução.
 
 | Resultado            | Arquivos de teste | Casos de teste |
 |----------------------|------------------:|---------------:|
@@ -39,7 +38,7 @@ Duração: cerca de 48 minutos, com no máximo 2 *workers*, limite definido pelo
 - **2 em `process-boundary`** (`processFilesystemCoverageAdapters.test.ts`): o REA verifica, via `/proc/<pid>/environ`, se os processos filhos pertencem à captura. A execução ocorreu em um *sandbox* que nega essa leitura (`EACCES`), então a limpeza termina como `owned_process_group=unverified` e o teste falha.
 - **3 em `mcp-boundary`** (`serverIdentity.test.ts`, `sessionMcp.test.ts`): estouraram o *timeout* de 10 s por causa da lentidão introduzida pela instrumentação de cobertura.
 
-Elas são instáveis (*flaky*). Uma execução anterior, idêntica, falhou em **outros** 2 testes de `process-boundary` com o mesmo erro `EACCES` e passou nos 3 testes MCP.
+Elas são instáveis (*flaky*). Uma execução anterior, idêntica, falhou em outros 2 testes de `process-boundary` com o mesmo erro `EACCES` e passou nos 3 testes MCP.
 
 **Testes ignorados.** Os 13 arquivos ignorados usam `skipIf(process.platform !== "darwin")`: dependem de macOS (plist, Mach-O, assinatura de código, NIB, inicialização do Hopper) e não rodam em Linux.
 
@@ -107,7 +106,7 @@ O núcleo (`domain` e `contracts`), onde está a lógica de negócio pura, é o 
 | `application/GeminiClientSettings.ts`      | 65                  | 12,2%     |
 | `browser/history/SazCapture.ts`            | 65                  | 0,0%      |
 
-## 6. O que não é coberto, e por quê
+## 6. O que não é coberto
 
 Na análise do relatório HTML, o código não coberto se encaixa em quatro categorias:
 
@@ -134,13 +133,3 @@ Em `LldbCallTracer.ts` (62%), o bloco `catch` que trata falhas ao ler e fechar o
 ## 7. Conclusão
 
 O REA tem **cobertura alta**: 90% das linhas e 81% dos *branches*, acima dos limites que o próprio projeto exige no CI. A estratégia de testes é coerente com a arquitetura, com o núcleo (`domain`, `contracts`) acima de 94% de linhas. Os pontos fracos estão na periferia, onde o teste automatizado é mais caro: a CLI interativa, os adaptadores de ferramentas comerciais (Hopper) e o código exclusivo de macOS. Parte dos 0% é artefato da ferramenta (os *workers*), não falta de teste.
-
-Para melhorar, as recomendações são:
-
-1. Tornar injetáveis os *streams* de entrada e saída de `interactiveSetup.ts` (hoje fixos na constante `promptStreams`) para testar os prompts com *streams* simulados.
-2. Escrever testes de propriedade ou *fuzzing* com binários PE malformados para `nativeAotPe.ts`. O projeto já usa `@fast-check/vitest`.
-3. Incluir a cobertura dos *workers* (por exemplo, com `NODE_V8_COVERAGE` nos processos filhos) para que o relatório reflita a cobertura real.
-
-## Anexo
-
-O relatório HTML gerado pela ferramenta está em `rea-cobertura-html.zip`. Para navegar, abra `rea-coverage-html/index.html`.
